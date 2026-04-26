@@ -1,94 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>&#8203;</title>
-<link rel="icon" type="image/x-icon" href="Icons/icon.ico">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FORM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
-  #vulture { position: fixed; inset: 0; width: 100%; height: 100%; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #080808;
+    color: #e8e4de;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: clamp(4rem, 11vw, 11rem);
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    text-align: center;
+    opacity: 0;
+    animation: up 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: #8a7a68;
+  }
+
+  p {
+    position: fixed;
+    bottom: 7vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #2e2e2c;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+    opacity: 0;
+    animation: fadein 1s ease 1.4s forwards;
+  }
+
+  @keyframes up {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadein {
+    to { opacity: 1; }
+  }
 </style>
 </head>
 <body>
-
-<canvas id="vulture"></canvas>
-
-<script>
-  const canvas = document.getElementById('vulture');
-  const ctx = canvas.getContext('2d');
-  let W, H, t = 0;
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const waves = [
-    { yFrac:0.82, amp:0.13, freq:1.1,  speed:0.28, phase:0.0,  color:'rgba(255,255,255,',  alpha:0.18 },
-    { yFrac:0.74, amp:0.10, freq:0.85, speed:0.20, phase:1.4,  color:'rgba(200,200,200,',  alpha:0.14 },
-    { yFrac:0.66, amp:0.09, freq:1.35, speed:0.33, phase:2.8,  color:'rgba(255,255,255,',  alpha:0.11 },
-    { yFrac:0.60, amp:0.07, freq:0.95, speed:0.18, phase:4.2,  color:'rgba(180,180,180,',  alpha:0.09 },
-    { yFrac:0.55, amp:0.06, freq:1.6,  speed:0.40, phase:0.9,  color:'rgba(255,255,255,',  alpha:0.07 },
-    { yFrac:0.50, amp:0.05, freq:1.2,  speed:0.25, phase:3.5,  color:'rgba(220,220,220,',  alpha:0.05 },
-    { yFrac:0.45, amp:0.04, freq:0.75, speed:0.14, phase:1.8,  color:'rgba(255,255,255,',  alpha:0.04 },
-    { yFrac:0.40, amp:0.03, freq:1.9,  speed:0.50, phase:5.1,  color:'rgba(200,200,200,',  alpha:0.03 },
-  ];
-
-  function drawWave(wave) {
-    const yBase = H * wave.yFrac;
-    const amp   = H * wave.amp;
-    ctx.beginPath();
-    ctx.moveTo(0, H);
-    for (let x = 0; x <= W; x += 2) {
-      const nx = x / W;
-      const y = yBase
-        - amp * Math.sin(nx * Math.PI * 2 * wave.freq + t * wave.speed + wave.phase)
-        - amp * 0.35 * Math.sin(nx * Math.PI * 2 * wave.freq * 2.3 + t * wave.speed * 1.5 + wave.phase + 1.1);
-      ctx.lineTo(x, y);
-    }
-    ctx.lineTo(W, H);
-    ctx.closePath();
-    const grad = ctx.createLinearGradient(0, yBase - amp, 0, H);
-    grad.addColorStop(0,   wave.color + wave.alpha + ')');
-    grad.addColorStop(0.4, wave.color + (wave.alpha * 0.6) + ')');
-    grad.addColorStop(1,   wave.color + '0)');
-    ctx.fillStyle = grad;
-    ctx.fill();
-  }
-
-  function draw() {
-    t += 0.012;
-    const bg = ctx.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0,   '#000000');
-    bg.addColorStop(0.5, '#080808');
-    bg.addColorStop(1,   '#111111');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
-
-    const ambientX = W * 0.5;
-    const ambientY = H * 0.3;
-    const ambient = ctx.createRadialGradient(ambientX, ambientY, 0, ambientX, ambientY, W * 0.65);
-    ambient.addColorStop(0,   'rgba(255,255,255,0.05)');
-    ambient.addColorStop(0.5, 'rgba(255,255,255,0.02)');
-    ambient.addColorStop(1,   'transparent');
-    ctx.fillStyle = ambient;
-    ctx.fillRect(0, 0, W, H);
-
-    for (let i = waves.length - 1; i >= 0; i--) drawWave(waves[i]);
-
-    const vig = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H*0.6, H*0.9);
-    vig.addColorStop(0,   'transparent');
-    vig.addColorStop(1,   'rgba(0,0,0,0.75)');
-    ctx.fillStyle = vig;
-    ctx.fillRect(0, 0, W, H);
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-</script>
+  <h1>We’re making improvements right now<br><em>Stay tuned for an update</em></h1>
+  <p>VultureStack</p>
 </body>
 </html>
